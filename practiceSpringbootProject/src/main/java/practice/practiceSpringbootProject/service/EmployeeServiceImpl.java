@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 import practice.practiceSpringbootProject.dto.EmployeeDto;
 import practice.practiceSpringbootProject.entity.EmployeeEntity;
 import practice.practiceSpringbootProject.repository.EmployeeRepository;
-
+import org.springframework.util.ReflectionUtils;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -18,10 +20,10 @@ public class EmployeeServiceImpl implements EmployeeService{
     private final ModelMapper modelMapper;
 
     @Override
-    public EmployeeDto getEmployeeById(Long id) {
-       EmployeeEntity employeeEntity=employeeRepository
-               .findById(id).orElseThrow(() -> new RuntimeException("Employee not found"));;
-       return modelMapper.map(employeeEntity, EmployeeDto.class);
+    public Optional<EmployeeDto> getEmployeeById(Long id) {
+       Optional<EmployeeEntity> employeeEntity=employeeRepository
+               .findById(id);
+       return employeeEntity.map(e-> modelMapper.map(e, EmployeeDto.class));
     }
 
     @Override
@@ -38,6 +40,8 @@ public class EmployeeServiceImpl implements EmployeeService{
 
     @Override
     public void deleteEmployee(Long id) {
+        boolean isExists=isExistsByEmployeeId(id);
+        if(!isExists) return;
         employeeRepository.deleteById(id);
         return;
     }
@@ -56,5 +60,27 @@ public class EmployeeServiceImpl implements EmployeeService{
         modelMapper.map(employeeDto,employeeEntity);
         EmployeeEntity updated=employeeRepository.save(employeeEntity);
         return modelMapper.map(updated, EmployeeDto.class);
+    }
+
+    @Override
+    public EmployeeDto updatePartialEmployee(Map<String,Object> updates, Long id) {
+        boolean isExists=isExistsByEmployeeId(id);
+        if(!isExists) return null;
+
+        EmployeeEntity employeeEntity=employeeRepository.findById(id).get();
+
+        updates.forEach((key,val)->{
+           Field fieldToUpdate= ReflectionUtils.findField(EmployeeEntity.class,key);
+           fieldToUpdate.setAccessible(true);
+           ReflectionUtils.setField(fieldToUpdate,employeeEntity,val);
+        });
+
+        EmployeeEntity updatedEntity=employeeRepository.save(employeeEntity);
+
+        return modelMapper.map(updatedEntity, EmployeeDto.class);
+    }
+
+    public boolean isExistsByEmployeeId(Long id){
+        return employeeRepository.existsById(id);
     }
 }
