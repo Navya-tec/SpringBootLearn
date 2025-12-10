@@ -1,5 +1,6 @@
 package practice.practiceSpringbootProject.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class EmployeeController {
     }
 
     @PostMapping(path = "/create")
-    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeDto body){
+    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody @Valid EmployeeDto body){
          EmployeeDto savedEmployeeDto=employeeService.createEmployee(body);
          return new ResponseEntity<>(savedEmployeeDto, HttpStatus.CREATED);
     }
