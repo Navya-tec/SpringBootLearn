@@ -28,11 +28,11 @@ public class EmployeeController {
     @GetMapping(path = "/{employeeId}")
     public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable(name = "employeeId") Long id){
         Optional<EmployeeDto> employeeDto=  employeeService.getEmployeeById(id);
-        return employeeDto.map(employeeDto1 -> ResponseEntity.ok(employeeDto1)).orElse(ResponseEntity.notFound().build());
+        return employeeDto.map(employeeDto1 -> ResponseEntity.ok(employeeDto1)).orElseThrow(()->new RuntimeException("Employee with id not found!, try again"));
     }
 
     @PostMapping(path = "/create")
-    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody @Valid EmployeeDto body){
+    public ResponseEntity<EmployeeDto> createEmployee(@Valid @RequestBody EmployeeDto body){
          EmployeeDto savedEmployeeDto=employeeService.createEmployee(body);
          return new ResponseEntity<>(savedEmployeeDto, HttpStatus.CREATED);
     }

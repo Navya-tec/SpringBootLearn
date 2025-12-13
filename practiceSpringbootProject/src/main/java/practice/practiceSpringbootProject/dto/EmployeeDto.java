@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import practice.practiceSpringbootProject.annotations.EmployeeRoleValidation;
+import practice.practiceSpringbootProject.annotations.PrimeNumberValidation;
 
 import java.time.LocalDate;
 
@@ -21,13 +23,15 @@ public class EmployeeDto {
     String email;
     @Min(value = 18 , message = "Age>=18")
     @Max(value = 60,message = "Age<=60")
+    @PrimeNumberValidation
     Integer age;
     @PastOrPresent(message = "Date should be of past or present")
     LocalDate dateOfJoining;
     @JsonProperty("isActive")
     @AssertTrue(message = "employee should be active!")
     Boolean isActive;
-    @Pattern(regexp = "^ADMIN|USER$",message = "Role should be User or admin")
+  //  @Pattern(regexp = "^ADMIN|USER$",message = "Role should be User or admin")
+    @EmployeeRoleValidation
     String Role;
     @Digits(integer = 6,fraction = 2,message = "Salary can be in form XXXXXX.YY")
     Double salary;
